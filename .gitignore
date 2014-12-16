@@ -1,0 +1,9 @@
+*.swp
+*.hi
+*.o
+*.aux
+*.hp
+*.ps
+*.prof
+dist
+client_session_key.aes
