@@ -1,0 +1,36 @@
+static-dir:     "_env:STATIC_DIR:static"
+host:           "_env:HOST:*4" # any IPv4 host
+port:           "_env:PORT:3000"
+approot:        "_env:APPROOT:http://localhost:3000"
+ip-from-header: "_env:IP_FROM_HEADER:false"
+
+# Optional values with the following production defaults.
+# In development, they default to the inverse.
+#
+# development: false
+# detailed-logging: false
+# should-log-all: false
+# reload-templates: false
+# mutable-static: false
+# skip-combining: false
+
+database:
+  user:     "_env:MYSQL_USER:root"
+  password: "_env:MYSQL_PASSWORD:"
+  host:     "_env:MYSQL_HOST:localhost"
+  port:     "_env:MYSQL_PORT:5432"
+  database: "_env:MYSQL_DATABASE:haskoin_faucet"
+  poolsize: "_env:MYSQL_POOLSIZE:10"
+
+copyright: Insert copyright statement here
+#analytics: UA-YOURCODE
+
+withdrawal-limit:      100000
+withdrawal-reset-time: 3600
+minimum-confirmations: 3
+wallet-url:            "http://localhost:18555"
+wallet-name:           "faucet"
+account-name:          "public"
+wallet-token: 
+  token: gYeuZHGjfps=
+  secret: iYCTI5pH7Y1f/yxPW9M4Jw==
