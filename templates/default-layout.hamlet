@@ -1,3 +1,4 @@
+<h1>Welcome to the Haskoin Testnet Faucet!
 $maybe msg <- mmsg
     <div #message>#{msg}
 ^{widget}
