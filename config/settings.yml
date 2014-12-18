@@ -1,5 +1,6 @@
 static-dir:     "_env:STATIC_DIR:static"
-host:           "_env:HOST:*4" # any IPv4 host
+# host:           "_env:HOST:*4" # any IPv4 host
+host:           "_env:HOST:127.0.0.1" # any IPv4 host
 port:           "_env:PORT:3000"
 approot:        "_env:APPROOT:http://localhost:3000"
 ip-from-header: "_env:IP_FROM_HEADER:false"
@@ -28,6 +29,7 @@ copyright: Insert copyright statement here
 withdrawal-limit:      100000
 withdrawal-reset-time: 3600
 minimum-confirmations: 3
+network-fee:           10000
 wallet-url:            "http://localhost:18555"
 wallet-name:           "faucet"
 account-name:          "public"

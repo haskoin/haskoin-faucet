@@ -1,6 +1,11 @@
 <h1>Welcome to the Haskoin Testnet Faucet!
-$maybe addr <- addressM
-  <p>Coins sent to address #{addr}
-<form method=post action=@{HomeR} enctype=#{formEnctype}>
-  ^{formWidget}
-  <button .btn .btn-primary type=submit>Send me coins!
+<p>Balance: #{balance}
+<p>Withdrawal limit: #{limit}
+<p>Donation address: #{donation}
+$maybe t <- timeM
+  <p>You can withdraw again at #{show t}
+$nothing
+  <form method=post action=@{HomeR} enctype=#{formEnctype}>
+    ^{formWidget}
+    <button .btn .btn-primary type=submit>Send me coins!
+<p>Your IP address is: #{ip}

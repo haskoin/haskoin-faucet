@@ -6,17 +6,25 @@
 module Settings where
 
 import ClassyPrelude.Yesod
-import Control.Exception          (throw)
-import Data.Aeson                 (Result (..), fromJSON, withObject, (.!=),
-                                   (.:?))
-import Data.FileEmbed             (embedFile)
-import Data.Yaml                  (decodeEither')
-import Database.Persist.MySQL     (MySQLConf)
+import Control.Exception (throw)
+import Data.Aeson 
+    ( Result (..)
+    , fromJSON
+    , withObject
+    , (.!=), (.:?)
+    )
+import Data.FileEmbed (embedFile)
+import Data.Yaml (decodeEither')
+import Data.Time.Clock (NominalDiffTime)
+import Database.Persist.MySQL (MySQLConf)
 import Language.Haskell.TH.Syntax (Exp, Name, Q)
-import Network.Wai.Handler.Warp   (HostPreference)
-import Yesod.Default.Config2      (applyEnvValue, configSettingsYml)
-import Yesod.Default.Util         (WidgetFileSettings, widgetFileNoReload,
-                                   widgetFileReload)
+import Network.Wai.Handler.Warp (HostPreference)
+import Yesod.Default.Config2 (applyEnvValue, configSettingsYml)
+import Yesod.Default.Util 
+    ( WidgetFileSettings
+    , widgetFileNoReload
+    , widgetFileReload
+    )
 
 import Network.Haskoin.Yesod.TokenAuth (TokenPair)
 
@@ -57,10 +65,12 @@ data AppSettings = AppSettings
 
     , appLimit                  :: Word64
     -- ^ Faucet withdrawal limit
-    , appReset                  :: Word32
+    , appReset                  :: NominalDiffTime
     -- ^ Time in second between withdrawals
-    , appMinConf                :: Int
+    , appMinConf                :: Word32
     -- ^ Minimum number of confirmations to use for balances and spending
+    , appFee                    :: Word64
+    -- ^ Network fee to pay when sending coins
     , appWalletUrl              :: Text
     -- ^ URL of the hw wallet
     , appWalletName             :: Text
@@ -96,8 +106,9 @@ instance FromJSON AppSettings where
         appAnalytics              <- o .:? "analytics"
 
         appLimit                  <- o .: "withdrawal-limit"
-        appReset                  <- o .: "withdrawal-reset-time"
+        appReset                  <- fromInteger <$> (o .: "withdrawal-reset-time")
         appMinConf                <- o .: "minimum-confirmations"
+        appFee                    <- o .: "network-fee"
         appWalletUrl              <- o .: "wallet-url"
         appWalletName             <- o .: "wallet-name"
         appAccountName            <- o .: "account-name"

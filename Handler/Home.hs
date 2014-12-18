@@ -7,12 +7,20 @@ import Yesod.Form.Bootstrap3
     , withSmallInput
     )
 
-import Data.Aeson (decode)
+import Data.Aeson (decode, encode)
 import Data.Maybe (fromJust)
+import Data.Text (append)
 import qualified Data.ByteString as BS (ByteString)
 import qualified Data.ByteString.Lazy as BL (ByteString, empty)
+import Data.Time.Clock (getCurrentTime, addUTCTime)
+import Data.IP (fromHostAddress, fromHostAddress6)
 
+import Network.Wai (Request(remoteHost))
+import Network.Socket (SockAddr(..))
+
+import Network.Haskoin.Yesod.APIServer
 import Network.Haskoin.Yesod.TokenAuth
+import Network.Haskoin.Wallet
 import Network.Haskoin.Crypto
 import Network.Haskoin.Util
 
@@ -25,35 +33,96 @@ import Network.Haskoin.Util
 -- inclined, or create a single monolithic file.
 getHomeR :: Handler Html
 getHomeR = do
-    cfg <- appSettings <$> getYesod
     (formWidget, formEnctype) <- generateFormPost withdrawForm
-    let addressM = Nothing :: Maybe Text
+    renderHome formWidget formEnctype
+
+postHomeR :: Handler Html
+postHomeR = do
+    cfg <- appSettings <$> getYesod
+    ((result, formWidget), formEnctype) <- runFormPost withdrawForm
+    case result of
+        FormSuccess addr -> do
+            timeM <- nextWithdrawTime
+            if isNothing timeM 
+                then withdraw $ fromJust $ base58ToAddr $ unpack addr
+                else setMessage $ toHtml 
+                    ("You are not authorized to withdraw yet." :: Text)
+            redirect HomeR
+        _ -> renderHome formWidget formEnctype
+
+nextWithdrawTime :: Handler (Maybe UTCTime)
+nextWithdrawTime = do
+    userIp <- getUserIP
+    userM  <- runDB $ getBy $ UniqueIp userIp
+    reset <- (appReset . appSettings) <$> getYesod
+    case userM of
+        Just (Entity _ user) -> do
+            now <- liftIO getCurrentTime
+            let allowedTime = addUTCTime reset $ userWithdrawTime user
+            return $ if now > allowedTime then Nothing else Just allowedTime
+        Nothing -> return Nothing
+
+withdraw :: Address -> Handler ()
+withdraw addr = do
+    userIP <- getUserIP
+    now <- liftIO getCurrentTime
+    cfg <- appSettings <$> getYesod
+    let limit   = appLimit cfg
+        wallet  = appWalletName cfg
+        account = appAccountName cfg
         minconf = appMinConf cfg
+        fee     = appFee cfg
+        url = concat [ "/wallets/", unpack wallet
+                     , "/accounts/", unpack account, "/txs"
+                     ] 
+        req = Just $ encode $ SendCoins [(addr, limit)] fee minconf False
+
+    runDB $ do
+        resE <- insertBy $ User userIP now limit
+        case resE of
+            Left (Entity uid _) -> replace uid $ User userIP now limit
+            Right _ -> return ()
+
+    (TxHashStatusRes tid _) <- sendHW url [] "POST" req
+    setMessage $ toHtml $ "Coins sent. Tx: " ++ encodeTxHashLE tid
+
+renderHome :: Widget -> Enctype -> Handler Html
+renderHome formWidget formEnctype = do
+    cfg <- appSettings <$> getYesod
+    ip  <- getUserIP
+    timeM <- nextWithdrawTime
+    let minconf = appMinConf cfg
         wallet = appWalletName cfg
         account = appAccountName cfg
         limit = appLimit cfg
         reset = appReset cfg
-        url = concat [ "/wallets/"
-                     , unpack wallet
-                     , "/accounts/"
-                     , unpack account
-                     , "/balance" 
-                     ]
-        qs  = [ ("minconf", Just $ stringToBS $ show minconf) ]
-    balance <- sendHW url qs "GET" Nothing
+        balanceUrl = concat [ "/wallets/", unpack wallet
+                            , "/accounts/", unpack account, "/balance" 
+                            ]
+        balanceQs  = [ ("minconf", Just $ stringToBS $ show minconf) ]
+        addrUrl = concat [ "/wallets/", unpack wallet
+                         , "/accounts/", unpack account, "/addrs" 
+                         ]
+        addrQs  = [ ("unused", Just "true" ) ]
+    (BalanceRes balRes _) <- sendHW balanceUrl balanceQs "GET" Nothing
+    addrRes <- sendHW addrUrl addrQs "GET" Nothing
+    let balance = case balRes of
+            BalanceConflict -> "Balance conflict" 
+            Balance b       -> show b
+        donation = case addrRes of
+            []   -> ""
+            x:xs -> addrToBase58 $ paymentAddress $ balanceAddress x
     defaultLayout $ do
         setTitle "Haskoin Faucet"
         $(widgetFile "homepage")
 
-postHomeR :: Handler Html
-postHomeR = do
-    ((result, formWidget), formEnctype) <- runFormPost withdrawForm
-    let addressM = case result of
-            FormSuccess res -> Just res
-            _ -> Nothing
-    defaultLayout $ do
-        setTitle "Haskoin Faucet"
-        $(widgetFile "homepage")
+getUserIP :: Handler Text
+getUserIP = do
+    sock <- remoteHost <$> waiRequest
+    return $ case sock of
+        SockAddrInet _ ha -> pack $ show $ fromHostAddress ha
+        SockAddrInet6 _ _ ha _ -> pack $ show $ fromHostAddress6 ha
+        SockAddrUnix ha -> pack ha
 
 withdrawForm :: Form Text
 withdrawForm = renderBootstrap3 BootstrapBasicForm $ 
@@ -64,11 +133,12 @@ withdrawForm = renderBootstrap3 BootstrapBasicForm $
         Just res -> Right $ pack $ addrToBase58 res
         _        -> Left $ ("Invalid address" :: Text)
 
-sendHW :: String              -- Route
+sendHW :: FromJSON a
+       => String              -- Route
        -> [(BS.ByteString, Maybe BS.ByteString)] -- Query string
        -> BS.ByteString       -- Method
        -> Maybe BL.ByteString -- Body 
-       -> Handler Value       -- Response
+       -> Handler a           -- Response
 sendHW p qs m bodyM = do
     walletUrl    <- (unpack . appWalletUrl . appSettings) <$> getYesod
     walletTokenM <- (appWalletToken . appSettings) <$> getYesod
