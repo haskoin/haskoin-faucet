@@ -119,8 +119,8 @@ getDonationAddress = do
     let wallet = appWalletName cfg
         account = appAccountName cfg
         url = concat [ "/wallets/", unpack wallet
-                         , "/accounts/", unpack account, "/addrs" 
-                         ]
+                     , "/accounts/", unpack account, "/addrs" 
+                     ]
         qs = [ ("unused", Just "true" ) ]
     addrE <- sendHW url qs "GET" Nothing
     case addrE of
@@ -135,8 +135,8 @@ getWalletBalance = do
         wallet = appWalletName cfg
         account = appAccountName cfg
         url = concat [ "/wallets/", unpack wallet
-                            , "/accounts/", unpack account, "/balance" 
-                            ]
+                     , "/accounts/", unpack account, "/balance" 
+                     ]
         qs  = [ ("minconf", Just $ stringToBS $ show minconf) ]
     balE <- sendHW url qs "GET" Nothing
     case balE of
