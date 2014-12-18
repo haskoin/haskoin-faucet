@@ -7,7 +7,11 @@ import Yesod.Form.Bootstrap3
     , withSmallInput
     )
 
-import Data.Aeson (decode, encode)
+import Data.Aeson 
+    ( decode, encode
+    , withObject
+    , (.:?)
+    )
 import Data.Maybe (fromJust)
 import Data.Text (append)
 import qualified Data.ByteString as BS (ByteString)
@@ -37,18 +41,35 @@ getHomeR = do
     renderHome formWidget formEnctype
 
 postHomeR :: Handler Html
-postHomeR = nextWithdrawTime >>= \timeM -> if isNothing timeM
-    then do
-        cfg <- appSettings <$> getYesod
-        ((result, formWidget), formEnctype) <- runFormPost withdrawForm
-        case result of
-            FormSuccess addr -> do
-                withdraw $ fromJust $ base58ToAddr $ unpack addr
-                redirect HomeR
-            _ -> renderHome formWidget formEnctype
-    else do
+postHomeR = do
+    timeM       <- nextWithdrawTime
+    when (isJust timeM) $ do
         setMessage $ toHtml ("You are not authorized to withdraw yet." :: Text)
         redirect HomeR
+
+    cfg <- appSettings <$> getYesod
+    ((result, formWidget), formEnctype) <- runFormPost withdrawForm
+    case result of
+        FormSuccess addr -> do
+            withdraw $ fromJust $ base58ToAddr $ unpack addr
+            redirect HomeR
+        _ -> renderHome formWidget formEnctype
+
+-- Display the home page
+renderHome :: Widget -> Enctype -> Handler Html
+renderHome formWidget formEnctype = do
+    limit <- (appLimit . appSettings) <$> getYesod
+    ip  <- getUserIP
+    timeM <- nextWithdrawTime
+    addrRes <- getDonationAddress
+    balRes  <- getWalletBalance
+    let balance = case balRes of
+            BalanceConflict -> "Balance conflict" 
+            Balance b       -> show b
+        donation = addrToBase58 addrRes
+    defaultLayout $ do
+        setTitle "Haskoin Faucet"
+        $(widgetFile "homepage")
 
 -- Returns the time at which a user can withdraw again. Returns Nothing
 -- if the user can withdraw now.
@@ -86,39 +107,41 @@ withdraw addr = do
             Left (Entity uid _) -> replace uid $ User userIP now limit
             Right _ -> return ()
 
-    (TxHashStatusRes tid _) <- sendHW url [] "POST" req
-    setMessage $ toHtml $ "Coins sent. Tx: " ++ encodeTxHashLE tid
+    txE <- sendHW url [] "POST" req
+    case txE of
+        Left err -> setMessage $ toHtml err
+        Right (TxHashStatusRes tid _) -> setMessage $ toHtml $ 
+            "Coins sent. Tx: " ++ encodeTxHashLE tid
 
--- Display the home page
-renderHome :: Widget -> Enctype -> Handler Html
-renderHome formWidget formEnctype = do
+getDonationAddress :: Handler Address
+getDonationAddress = do
     cfg <- appSettings <$> getYesod
-    ip  <- getUserIP
-    timeM <- nextWithdrawTime
+    let wallet = appWalletName cfg
+        account = appAccountName cfg
+        url = concat [ "/wallets/", unpack wallet
+                         , "/accounts/", unpack account, "/addrs" 
+                         ]
+        qs = [ ("unused", Just "true" ) ]
+    addrE <- sendHW url qs "GET" Nothing
+    case addrE of
+        Left err -> invalidArgs [ pack err ]
+        Right [] -> invalidArgs [ "Could not get a donation address" ]
+        Right (x:_) -> return $ paymentAddress $ balanceAddress x
+
+getWalletBalance :: Handler Balance
+getWalletBalance = do
+    cfg <- appSettings <$> getYesod
     let minconf = appMinConf cfg
         wallet = appWalletName cfg
         account = appAccountName cfg
-        limit = appLimit cfg
-        reset = appReset cfg
-        balanceUrl = concat [ "/wallets/", unpack wallet
+        url = concat [ "/wallets/", unpack wallet
                             , "/accounts/", unpack account, "/balance" 
                             ]
-        balanceQs  = [ ("minconf", Just $ stringToBS $ show minconf) ]
-        addrUrl = concat [ "/wallets/", unpack wallet
-                         , "/accounts/", unpack account, "/addrs" 
-                         ]
-        addrQs  = [ ("unused", Just "true" ) ]
-    (BalanceRes balRes _) <- sendHW balanceUrl balanceQs "GET" Nothing
-    addrRes <- sendHW addrUrl addrQs "GET" Nothing
-    let balance = case balRes of
-            BalanceConflict -> "Balance conflict" 
-            Balance b       -> show b
-        donation = case addrRes of
-            []   -> ""
-            x:xs -> addrToBase58 $ paymentAddress $ balanceAddress x
-    defaultLayout $ do
-        setTitle "Haskoin Faucet"
-        $(widgetFile "homepage")
+        qs  = [ ("minconf", Just $ stringToBS $ show minconf) ]
+    balE <- sendHW url qs "GET" Nothing
+    case balE of
+        Left err -> invalidArgs [ pack err ]
+        Right (BalanceRes bal _) -> return bal
 
 getUserIP :: Handler Text
 getUserIP = do
@@ -142,7 +165,7 @@ sendHW :: FromJSON a
        -> [(BS.ByteString, Maybe BS.ByteString)] -- Query string
        -> BS.ByteString       -- Method
        -> Maybe BL.ByteString -- Body 
-       -> Handler a           -- Response
+       -> Handler (Either String a) -- Response
 sendHW p qs m bodyM = do
     walletUrl    <- (unpack . appWalletUrl . appSettings) <$> getYesod
     walletTokenM <- (appWalletToken . appSettings) <$> getYesod
@@ -176,13 +199,26 @@ sendHW p qs m bodyM = do
 
     res <- withManager (httpLbs req)
 
-    -- Just forward the response in case of error
-    let code = responseStatus res
-    when (statusCode code >= 400) $
-        sendResponseStatus code $ fromMaybe Null $ decode $ responseBody res
+    -- Display an error message
+    return $ if statusCode (responseStatus res) >= 400
+        then case decode $ responseBody res of
+            Just (ErrorMsg err msgs) -> Left $ 
+                if null msgs 
+                    then err 
+                    else unwords $ (err ++ ":") : msgs
+            Nothing -> Left "An error occured"
+        else case decode $ responseBody res of
+            Just a -> Right a
+            Nothing -> Left "An error occured"
 
-    -- TODO: What if decode fails ?
-    return $ fromJust $ decode $ responseBody res
+data ErrorMsg = ErrorMsg !String ![String]
+    deriving (Eq, Show, Read)
+
+instance FromJSON ErrorMsg where
+    parseJSON = withObject "errormsg" $ \o -> do
+        err  <- o .: "message"
+        msgM <- o .:? "errors"
+        return $ ErrorMsg err $ fromMaybe [] msgM
 
 nextNonce :: BS.ByteString -> Handler Int
 nextNonce ident = do
