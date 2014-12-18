@@ -37,19 +37,21 @@ getHomeR = do
     renderHome formWidget formEnctype
 
 postHomeR :: Handler Html
-postHomeR = do
-    cfg <- appSettings <$> getYesod
-    ((result, formWidget), formEnctype) <- runFormPost withdrawForm
-    case result of
-        FormSuccess addr -> do
-            timeM <- nextWithdrawTime
-            if isNothing timeM 
-                then withdraw $ fromJust $ base58ToAddr $ unpack addr
-                else setMessage $ toHtml 
-                    ("You are not authorized to withdraw yet." :: Text)
-            redirect HomeR
-        _ -> renderHome formWidget formEnctype
+postHomeR = nextWithdrawTime >>= \timeM -> if isNothing timeM
+    then do
+        cfg <- appSettings <$> getYesod
+        ((result, formWidget), formEnctype) <- runFormPost withdrawForm
+        case result of
+            FormSuccess addr -> do
+                withdraw $ fromJust $ base58ToAddr $ unpack addr
+                redirect HomeR
+            _ -> renderHome formWidget formEnctype
+    else do
+        setMessage $ toHtml ("You are not authorized to withdraw yet." :: Text)
+        redirect HomeR
 
+-- Returns the time at which a user can withdraw again. Returns Nothing
+-- if the user can withdraw now.
 nextWithdrawTime :: Handler (Maybe UTCTime)
 nextWithdrawTime = do
     userIp <- getUserIP
@@ -62,6 +64,7 @@ nextWithdrawTime = do
             return $ if now > allowedTime then Nothing else Just allowedTime
         Nothing -> return Nothing
 
+-- Performs a withdrawal to the provided Address
 withdraw :: Address -> Handler ()
 withdraw addr = do
     userIP <- getUserIP
@@ -86,6 +89,7 @@ withdraw addr = do
     (TxHashStatusRes tid _) <- sendHW url [] "POST" req
     setMessage $ toHtml $ "Coins sent. Tx: " ++ encodeTxHashLE tid
 
+-- Display the home page
 renderHome :: Widget -> Enctype -> Handler Html
 renderHome formWidget formEnctype = do
     cfg <- appSettings <$> getYesod
