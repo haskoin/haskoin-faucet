@@ -1,11 +1,6 @@
 module Handler.Home where
 
 import Import
-import Yesod.Form.Bootstrap3 
-    ( BootstrapFormLayout (..)
-    , renderBootstrap3
-    , withSmallInput
-    )
 
 import Data.Aeson 
     ( decode, encode
@@ -36,28 +31,26 @@ import Network.Haskoin.Util
 -- functions. You can spread them across multiple files if you are so
 -- inclined, or create a single monolithic file.
 getHomeR :: Handler Html
-getHomeR = do
-    (formWidget, formEnctype) <- generateFormPost withdrawForm
-    renderHome formWidget formEnctype
+getHomeR = renderHome
 
 postHomeR :: Handler Html
 postHomeR = do
-    timeM       <- nextWithdrawTime
+    timeM <- nextWithdrawTime
     when (isJust timeM) $ do
         setMessage $ toHtml ("You are not authorized to withdraw yet." :: Text)
         redirect HomeR
 
     cfg <- appSettings <$> getYesod
-    ((result, formWidget), formEnctype) <- runFormPost withdrawForm
+    result <- runInputPostResult $ ireq textField "address"
     case result of
         FormSuccess addr -> do
             withdraw $ fromJust $ base58ToAddr $ unpack addr
             redirect HomeR
-        _ -> renderHome formWidget formEnctype
+        _ -> renderHome
 
 -- Display the home page
-renderHome :: Widget -> Enctype -> Handler Html
-renderHome formWidget formEnctype = do
+renderHome :: Handler Html
+renderHome = do
     limit <- (appLimit . appSettings) <$> getYesod
     ip  <- getUserIP
     timeM <- nextWithdrawTime
@@ -150,15 +143,6 @@ getUserIP = do
         SockAddrInet _ ha -> pack $ show $ fromHostAddress ha
         SockAddrInet6 _ _ ha _ -> pack $ show $ fromHostAddress6 ha
         SockAddrUnix ha -> pack ha
-
-withdrawForm :: Form Text
-withdrawForm = renderBootstrap3 BootstrapBasicForm $ 
-    areq addressField "Testnet Address" Nothing
-  where
-    addressField = check validateAddress textField
-    validateAddress a = case base58ToAddr (unpack a) of
-        Just res -> Right $ pack $ addrToBase58 res
-        _        -> Left $ ("Invalid address" :: Text)
 
 sendHW :: FromJSON a
        => String              -- Route
