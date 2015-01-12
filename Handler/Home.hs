@@ -13,6 +13,8 @@ import qualified Data.ByteString.Lazy as BL (ByteString, empty)
 import Data.Time.Clock (getCurrentTime, addUTCTime)
 import Data.IP (fromHostAddress, fromHostAddress6)
 
+import Text.Hamlet          (hamletFile)
+
 import Network.Wai (Request(remoteHost))
 import Network.Socket (SockAddr(..))
 
@@ -36,7 +38,9 @@ postHomeR :: Handler Html
 postHomeR = do
     timeM <- nextWithdrawTime
     when (isJust timeM) $ do
-        setMessage $ toHtml ("You are not authorized to withdraw yet." :: Text)
+        msg <- withUrlRenderer
+            $(hamletFile "templates/not-authorized-message.hamlet")
+        setMessage msg
         redirect HomeR
 
     cfg <- appSettings <$> getYesod
@@ -44,9 +48,10 @@ postHomeR = do
     case result of
         FormSuccess addr -> do
             case base58ToAddr $ unpack addr of
-                Nothing -> setMessage $ preEscapedToMarkup
-                    ("Invalid Testnet3 address: <strong>" :: Text)
-                    ++ toHtml addr ++ preEscapedToMarkup ("</strong>" :: Text)
+                Nothing -> do
+                    msg <- withUrlRenderer
+                        $(hamletFile "templates/invalid-address-message.hamlet")
+                    setMessage msg
                 Just x ->
                     withdraw x
             redirect HomeR
@@ -100,10 +105,14 @@ withdraw addr = do
 
     txE <- sendHW url [] "POST" req
     case txE of
-        Left err -> setMessage $ toHtml err
+        Left err -> do
+            msg <- withUrlRenderer
+                $(hamletFile "templates/error-message.hamlet")
+            setMessage msg
         Right (TxHashStatusRes tid _) -> do
-            setMessage $ preEscapedToMarkup $ "Coins sent via tx: <strong>"
-                ++ encodeTxHashLE tid ++ "</strong>"
+            msg <- withUrlRenderer
+                $(hamletFile "templates/sent-message.hamlet")
+            setMessage msg
             runDB $ do
                 resE <- insertBy $ User userIP now limit
                 case resE of

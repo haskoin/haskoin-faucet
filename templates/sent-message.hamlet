@@ -1,0 +1,3 @@
+<div .alert .alert-success>
+    Coins sent via tx: 
+    <strong>#{encodeTxHashLE tid}
