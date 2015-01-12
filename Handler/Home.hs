@@ -7,7 +7,6 @@ import Data.Aeson
     , withObject
     , (.:?)
     )
-import Data.Maybe (fromJust)
 import Data.Text (append)
 import qualified Data.ByteString as BS (ByteString)
 import qualified Data.ByteString.Lazy as BL (ByteString, empty)
@@ -44,7 +43,12 @@ postHomeR = do
     result <- runInputPostResult $ ireq textField "address"
     case result of
         FormSuccess addr -> do
-            withdraw $ fromJust $ base58ToAddr $ unpack addr
+            case base58ToAddr $ unpack addr of
+                Nothing -> setMessage $ preEscapedToMarkup
+                    ("Invalid Testnet3 address: <strong>" :: Text)
+                    ++ toHtml addr ++ preEscapedToMarkup ("</strong>" :: Text)
+                Just x ->
+                    withdraw x
             redirect HomeR
         _ -> renderHome
 
@@ -94,17 +98,18 @@ withdraw addr = do
                      ] 
         req = Just $ encode $ SendCoins [(addr, limit)] fee minconf False
 
-    runDB $ do
-        resE <- insertBy $ User userIP now limit
-        case resE of
-            Left (Entity uid _) -> replace uid $ User userIP now limit
-            Right _ -> return ()
-
     txE <- sendHW url [] "POST" req
     case txE of
         Left err -> setMessage $ toHtml err
-        Right (TxHashStatusRes tid _) -> setMessage $ toHtml $ 
-            "Coins sent. Tx: " ++ encodeTxHashLE tid
+        Right (TxHashStatusRes tid _) -> do
+            setMessage $ preEscapedToMarkup $ "Coins sent via tx: <strong>"
+                ++ encodeTxHashLE tid ++ "</strong>"
+            runDB $ do
+                resE <- insertBy $ User userIP now limit
+                case resE of
+                    Left (Entity uid _) -> replace uid $ User userIP now limit
+                    Right _ -> return ()
+
 
 getDonationAddress :: Handler Address
 getDonationAddress = do

@@ -1,16 +1,13 @@
-<div .row #middle-box>
-  <div .col-sm-9 .centering>
-    <div .page-header>
-      <h1>Haskoin Faucet <small>for Testnet3</small>
-      <p .donate><strong>Donations:</strong> #{donation}
-    $maybe t <- timeM
-      <p>You can withdraw again at #{show t}
-    $nothing
-      <form method=post action=@{HomeR}>
+$maybe t <- timeM
+    <div .alert .alert-info>You can withdraw again on: 
+        <strong>#{show t}
+<div .jumbotron>
+    <p><strong>Donations:</strong> #{donation}
+    <form method=post action=@{HomeR}>
         <p>
-          <div .input-group .input-group-lg>
-            <span .input-group-addon #bitcoin-symbol>Ƀ
-            <input type=text .form-control
-                   name=address
-                   placeholder="Testnet3 Address"
-                   aria-describedby=bitcoin-symbol/>
+            <div .input-group .input-group-lg>
+                <span .input-group-btn #bitcoin-symbol>
+                    <button .btn .btn-default type=submit>Ƀ
+                <input type=text .form-control
+                       name=address placeholder="Testnet3 Address"
+                       aria-describedby="bitcoin-symbol"/>
