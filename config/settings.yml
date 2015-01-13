@@ -29,10 +29,9 @@ copyright: Insert copyright statement here
 withdrawal-limit:      100000
 withdrawal-reset-time: 30
 minimum-confirmations: 0
-network-fee:           10000
-wallet-url:            "http://localhost:18555"
+wallet-socket:         "ipc:///tmp/hw-spv"
+# Custom wallet configuration. Path is relative to $HOME/work-dir/network or
+# absolute.
+# wallet-config-file:  "server.yml"
 wallet-name:           "faucet"
 account-name:          "public"
-wallet-token: 
-  token: TmVIGH7xWBY=
-  secret: 1N+7Dn6dRgS9DtmaC+dLgw==

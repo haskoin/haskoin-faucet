@@ -26,8 +26,6 @@ import Yesod.Default.Util
     , widgetFileReload
     )
 
-import Network.Haskoin.Yesod.TokenAuth (TokenPair)
-
 -- | Runtime settings to configure this application. These settings can be
 -- loaded from various sources: defaults, environment variables, config files,
 -- theoretically even a database.
@@ -68,17 +66,15 @@ data AppSettings = AppSettings
     , appReset                  :: NominalDiffTime
     -- ^ Time in second between withdrawals
     , appMinConf                :: Word32
-    -- ^ Minimum number of confirmations to use for balances and spending
-    , appFee                    :: Word64
-    -- ^ Network fee to pay when sending coins
-    , appWalletUrl              :: Text
+    -- ^ Minimum number of confirmations to use for displaying balances
+    , appWalletSocket           :: Text
+    -- ^ URL of the hw wallet
+    , appWalletCfg              :: Maybe String
     -- ^ URL of the hw wallet
     , appWalletName             :: Text
     -- ^ Wallet name in hw
     , appAccountName            :: Text
     -- ^ Account name in hw
-    , appWalletToken            :: Maybe TokenPair
-    -- ^ HMAC authentication token and secret for hw
     }
 
 instance FromJSON AppSettings where
@@ -108,11 +104,10 @@ instance FromJSON AppSettings where
         appLimit                  <- o .: "withdrawal-limit"
         appReset                  <- fromInteger <$> (o .: "withdrawal-reset-time")
         appMinConf                <- o .: "minimum-confirmations"
-        appFee                    <- o .: "network-fee"
-        appWalletUrl              <- o .: "wallet-url"
+        appWalletSocket           <- o .: "wallet-socket"
+        appWalletCfg              <- o .:? "wallet-config-file"
         appWalletName             <- o .: "wallet-name"
         appAccountName            <- o .: "account-name"
-        appWalletToken            <- o .:? "wallet-token"
 
         return AppSettings {..}
 
