@@ -24,11 +24,14 @@ $newline never
           document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/,'js');
     <body>
         <div class="container">
-            <header>
-            <div id="main" role="main">
-              ^{pageBody pc}
-            <footer>
-              #{appCopyright $ appSettings master}
+            <div .row>
+                <div .col-sm-12>
+                    <div .page-header>
+                        <h1>Haskoin Testnet3 Faucet
+                    \<!--<div id="main" role="main">-->
+                    ^{pageBody pc}
+            <footer>Powered by 
+                <a href="http://haskoin.com/">Haskoin
 
         $maybe analytics <- appAnalytics $ appSettings master
             <script>

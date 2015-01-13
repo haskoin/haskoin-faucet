@@ -1,10 +1,12 @@
-<p>Balance: #{balance}
-<p>Withdrawal limit: #{limit}
-<p>Donation address: #{donation}
 $maybe t <- timeM
-  <p>You can withdraw again at #{show t}
-$nothing
-  <form method=post action=@{HomeR} enctype=#{formEnctype}>
-    ^{formWidget}
-    <button .btn .btn-primary type=submit>Send me coins!
-<p>Your IP address is: #{ip}
+    <div .alert .alert-warning>You can withdraw again on: 
+        <strong>#{show t}
+<div .jumbotron>
+    <p>
+        <strong>Donations: 
+        #{donation}
+    <form method=post action=@{HomeR}>
+        <div .input-group .input-group-lg>
+            <span .input-group-btn #bitcoin-symbol>
+                <button .btn .btn-default type=submit>Ƀ
+            <input type=text .form-control name=address placeholder="Testnet3 Address" aria-describedby=bitcoin-symbol>

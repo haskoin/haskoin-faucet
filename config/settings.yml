@@ -27,12 +27,12 @@ copyright: Insert copyright statement here
 #analytics: UA-YOURCODE
 
 withdrawal-limit:      100000
-withdrawal-reset-time: 3600
-minimum-confirmations: 3
+withdrawal-reset-time: 30
+minimum-confirmations: 0
 network-fee:           10000
 wallet-url:            "http://localhost:18555"
 wallet-name:           "faucet"
 account-name:          "public"
 wallet-token: 
-  token: gYeuZHGjfps=
-  secret: iYCTI5pH7Y1f/yxPW9M4Jw==
+  token: TmVIGH7xWBY=
+  secret: 1N+7Dn6dRgS9DtmaC+dLgw==
