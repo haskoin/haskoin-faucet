@@ -9,7 +9,6 @@ module Application
 import Import
 import System.Log.FastLogger (defaultBufSize, newStdoutLoggerSet, toLogStr)
 
-import Control.Concurrent.Async (withAsync)
 import Control.Monad.Logger (liftLoc, runLoggingT)
 
 import Database.Persist.MySQL 
@@ -147,8 +146,6 @@ appMain = do
     -- Generate a WAI Application from the foundation
     app <- makeApplication foundation
 
-    -- Launch SPV Wallet
-    withAsync (runSPVServer (appWalletCfg settings) False) $ \_ ->
-        -- Run the application with Warp
-        runSettings (warpSettings foundation) app
+    -- Run the application with Warp
+    runSettings (warpSettings foundation) app
 

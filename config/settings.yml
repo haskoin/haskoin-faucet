@@ -29,9 +29,6 @@ copyright: Insert copyright statement here
 withdrawal-limit:      100000
 withdrawal-reset-time: 30
 minimum-confirmations: 0
-wallet-socket:         "ipc:///tmp/hw-spv"
-# Custom wallet configuration. Path is relative to $HOME/work-dir/network or
-# absolute.
-# wallet-config-file:  "server.yml"
+wallet-socket:         "ipc:///var/run/hw-spv"
 wallet-name:           "faucet"
 account-name:          "public"

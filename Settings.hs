@@ -69,8 +69,6 @@ data AppSettings = AppSettings
     -- ^ Minimum number of confirmations to use for displaying balances
     , appWalletSocket           :: Text
     -- ^ URL of the hw wallet
-    , appWalletCfg              :: Maybe String
-    -- ^ URL of the hw wallet
     , appWalletName             :: Text
     -- ^ Wallet name in hw
     , appAccountName            :: Text
@@ -105,7 +103,6 @@ instance FromJSON AppSettings where
         appReset                  <- fromInteger <$> (o .: "withdrawal-reset-time")
         appMinConf                <- o .: "minimum-confirmations"
         appWalletSocket           <- o .: "wallet-socket"
-        appWalletCfg              <- o .:? "wallet-config-file"
         appWalletName             <- o .: "wallet-name"
         appAccountName            <- o .: "account-name"
 
