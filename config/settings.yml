@@ -29,10 +29,6 @@ copyright: Insert copyright statement here
 withdrawal-limit:      100000
 withdrawal-reset-time: 30
 minimum-confirmations: 0
-network-fee:           10000
-wallet-url:            "http://localhost:18555"
+wallet-socket:         "ipc:///var/run/hw-spv"
 wallet-name:           "faucet"
 account-name:          "public"
-wallet-token: 
-  token: TmVIGH7xWBY=
-  secret: 1N+7Dn6dRgS9DtmaC+dLgw==

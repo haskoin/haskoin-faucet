@@ -1,26 +1,42 @@
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 module Application
-    ( getApplicationDev
-    , appMain
-    , develMain
-    , makeFoundation
-    ) where
+( getApplicationDev
+, appMain
+, develMain
+, makeFoundation
+) where
 
-import Control.Monad.Logger                 (liftLoc, runLoggingT)
-import Database.Persist.MySQL               (createMySQLPool, myConnInfo,
-                                             myPoolSize, runSqlPool)
 import Import
-import Language.Haskell.TH.Syntax           (qLocation)
-import Network.Wai.Handler.Warp             (Settings, defaultSettings,
-                                             defaultShouldDisplayException,
-                                             runSettings, setHost,
-                                             setOnException, setPort)
-import Network.Wai.Middleware.RequestLogger (Destination (Logger),
-                                             IPAddrSource (..),
-                                             OutputFormat (..), destination,
-                                             mkRequestLogger, outputFormat)
-import System.Log.FastLogger                (defaultBufSize, newStdoutLoggerSet,
-                                             toLogStr)
+import System.Log.FastLogger (defaultBufSize, newStdoutLoggerSet, toLogStr)
+
+import Control.Monad.Logger (liftLoc, runLoggingT)
+
+import Database.Persist.MySQL 
+    ( createMySQLPool
+    , myConnInfo
+    , myPoolSize
+    , runSqlPool
+    )
+import Language.Haskell.TH.Syntax (qLocation)
+import Network.Wai.Handler.Warp 
+    ( Settings
+    , defaultSettings
+    , defaultShouldDisplayException
+    , runSettings
+    , setHost
+    , setOnException
+    , setPort
+    )
+import Network.Wai.Middleware.RequestLogger 
+    (Destination (Logger)
+    , IPAddrSource (..)
+    , OutputFormat (..)
+    , destination
+    , mkRequestLogger
+    , outputFormat
+    )
+
+import Network.Haskoin.Wallet (runSPVServer)
 
 -- Import all relevant handler modules here.
 -- Don't forget to add new modules to your cabal file!
@@ -118,9 +134,9 @@ appMain :: IO ()
 appMain = do
     -- Get the settings from all relevant sources
     settings <- loadAppSettingsArgs
-        -- fall back to compile-time values, set to [] to require values at runtime
+        -- fall back to compile-time values, set to [] to require values at
+        -- runtime
         [configSettingsYmlValue]
-
         -- allow environment variables to override
         useEnv
 
@@ -132,3 +148,4 @@ appMain = do
 
     -- Run the application with Warp
     runSettings (warpSettings foundation) app
+
