@@ -1,2 +1,2 @@
-<div .alert .alert-danger>
+<div .alert .alert-danger .truncate>
     #{err}

@@ -2,7 +2,7 @@ $maybe t <- timeM
     <div .alert .alert-warning>You can withdraw again on: 
         <strong>#{show t}
 <div .jumbotron>
-    <p>
+    <p .truncate>
         <strong>Donations: 
         #{donation}
     <form method=post action=@{HomeR}>

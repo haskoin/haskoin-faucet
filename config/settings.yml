@@ -26,9 +26,9 @@ database:
 copyright: Insert copyright statement here
 #analytics: UA-YOURCODE
 
-withdrawal-limit:      100000
-withdrawal-reset-time: 30
-minimum-confirmations: 0
-wallet-socket:         "ipc:///var/run/hw-spv"
-wallet-name:           "faucet"
-account-name:          "public"
+withdrawal-limit:      "_env:WITHDRAW_LIMIT:100000"
+withdrawal-reset-time: "_env:RESET_TIME:30"
+minimum-confirmations: "_env:CONFIRMATIONS:0"
+wallet-socket:         "_env:HW_SOCKET:ipc://hw-spv"
+wallet-name:           "_env:WALLET:faucet"
+account-name:          "_env:ACCOUNT:public"
