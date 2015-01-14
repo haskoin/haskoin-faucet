@@ -30,8 +30,7 @@ $newline never
                         <h1>Haskoin Testnet3 Faucet
                     \<!--<div id="main" role="main">-->
                     ^{pageBody pc}
-            <footer>Powered by 
-                <a href="http://haskoin.com/">Haskoin
+            <p>Powered by <a href="http://haskoin.com/">Haskoin</a>
 
         $maybe analytics <- appAnalytics $ appSettings master
             <script>
