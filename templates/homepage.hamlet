@@ -3,8 +3,8 @@ $maybe t <- timeM
         <strong>#{show t}
 <div .jumbotron>
     <p .truncate>
-        <strong>Donations: 
-        #{donation}
+        <strong>Donations:
+        <span>#{donation}
     <form method=post action=@{HomeR}>
         <div .input-group .input-group-lg>
             <span .input-group-btn #bitcoin-symbol>
