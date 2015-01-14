@@ -14,7 +14,7 @@ import qualified System.ZMQ4.Monadic as Z
 import Data.Time.Clock (addUTCTime)
 import Data.IP (fromHostAddress, fromHostAddress6)
 import Data.Aeson (encode, eitherDecode)
-import qualified Data.Text as T (pack, unpack)
+import qualified Data.Text as T (strip, pack, unpack)
 
 import Text.Hamlet (hamletFile)
 
@@ -48,7 +48,7 @@ postHomeR = do
     result <- runInputPostResult $ ireq textField "address"
     case result of
         FormSuccess addr -> do
-            case base58ToAddr $ unpack addr of
+            case base58ToAddr $ T.unpack $ T.strip addr of
                 Nothing -> do
                     msg <- withUrlRenderer
                         $(hamletFile "templates/invalid-address-message.hamlet")
