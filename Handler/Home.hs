@@ -96,8 +96,11 @@ withdraw addr = do
     let limit   = appLimit cfg
         wallet  = appWalletName cfg
         account = appAccountName cfg
+        minconf = appMinConf cfg
+        fee     = appFee cfg
 
-    txRes <- sendZmq $ PostTxsR wallet account $ CreateTx [(addr, limit)]
+    let action = CreateTx [(addr, limit)] fee minconf True
+    txRes <- sendZmq $ PostTxsR wallet account action
     case txRes of
         ResponseError err -> setMessage =<< withUrlRenderer
             $(hamletFile "templates/error-message.hamlet")

@@ -29,6 +29,7 @@ copyright: Insert copyright statement here
 withdrawal-limit:      "_env:WITHDRAW_LIMIT:100000"
 withdrawal-reset-time: "_env:RESET_TIME:30"
 minimum-confirmations: "_env:CONFIRMATIONS:0"
+transaction-fee:       "_env:FEE:10000"
 wallet-socket:         "_env:HW_SOCKET:ipc://hw-spv"
 wallet-name:           "_env:WALLET:faucet"
 account-name:          "_env:ACCOUNT:public"

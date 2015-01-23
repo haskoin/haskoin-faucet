@@ -66,7 +66,9 @@ data AppSettings = AppSettings
     , appReset                  :: NominalDiffTime
     -- ^ Time in second between withdrawals
     , appMinConf                :: Word32
-    -- ^ Minimum number of confirmations to use for displaying balances
+    -- ^ Minimum number of confirmations 
+    , appFee                    :: Word64
+    -- ^ Fee to pay per 1000 bytes
     , appWalletSocket           :: Text
     -- ^ URL of the hw wallet
     , appWalletName             :: Text
@@ -102,6 +104,7 @@ instance FromJSON AppSettings where
         appLimit                  <- o .: "withdrawal-limit"
         appReset                  <- fromInteger <$> (o .: "withdrawal-reset-time")
         appMinConf                <- o .: "minimum-confirmations"
+        appFee                    <- o .: "transaction-fee"
         appWalletSocket           <- o .: "wallet-socket"
         appWalletName             <- o .: "wallet-name"
         appAccountName            <- o .: "account-name"
