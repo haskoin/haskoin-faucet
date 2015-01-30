@@ -9,4 +9,4 @@ $maybe t <- timeM
         <div .input-group .input-group-lg>
             <span .input-group-btn #bitcoin-symbol>
                 <button .btn .btn-default type=submit>Ƀ
-            <input type=text .form-control name=address placeholder="Testnet3 Address" aria-describedby=bitcoin-symbol>
+            <input type=text .form-control name=address placeholder="Address" aria-describedby=bitcoin-symbol>

@@ -56,8 +56,6 @@ data AppSettings = AppSettings
     -- ^ Perform no stylesheet/script combining
 
     -- Example app-specific configuration values.
-    , appCopyright              :: Text
-    -- ^ Copyright text to appear in the footer of the page
     , appAnalytics              :: Maybe Text
     -- ^ Google Analytics code
 
@@ -75,6 +73,7 @@ data AppSettings = AppSettings
     -- ^ Wallet name in hw
     , appAccountName            :: Text
     -- ^ Account name in hw
+    , appUseTestnet             :: Bool
     }
 
 instance FromJSON AppSettings where
@@ -98,7 +97,6 @@ instance FromJSON AppSettings where
         appMutableStatic          <- o .:? "mutable-static"   .!= defaultDev
         appSkipCombining          <- o .:? "skip-combining"   .!= defaultDev
 
-        appCopyright              <- o .: "copyright"
         appAnalytics              <- o .:? "analytics"
 
         appLimit                  <- o .: "withdrawal-limit"
@@ -108,6 +106,7 @@ instance FromJSON AppSettings where
         appWalletSocket           <- o .: "wallet-socket"
         appWalletName             <- o .: "wallet-name"
         appAccountName            <- o .: "account-name"
+        appUseTestnet             <- o .: "use-testnet"
 
         return AppSettings {..}
 

@@ -23,7 +23,6 @@ database:
   database: "_env:MYSQL_DATABASE:haskoin_faucet"
   poolsize: "_env:MYSQL_POOLSIZE:10"
 
-copyright: Insert copyright statement here
 #analytics: UA-YOURCODE
 
 withdrawal-limit:      "_env:WITHDRAW_LIMIT:100000"
@@ -33,3 +32,4 @@ transaction-fee:       "_env:FEE:10000"
 wallet-socket:         "_env:HW_SOCKET:ipc://hw-spv"
 wallet-name:           "_env:WALLET:faucet"
 account-name:          "_env:ACCOUNT:public"
+use-testnet:           "_env:HW_TESTNET:false"

@@ -37,6 +37,7 @@ import Network.Wai.Middleware.RequestLogger
     )
 
 import Network.Haskoin.Wallet (runSPVServer)
+import Network.Haskoin.Constants (switchToTestnet3)
 
 -- Import all relevant handler modules here.
 -- Don't forget to add new modules to your cabal file!
@@ -139,6 +140,9 @@ appMain = do
         [configSettingsYmlValue]
         -- allow environment variables to override
         useEnv
+
+    -- Use testnet
+    when (appUseTestnet settings) switchToTestnet3
 
     -- Generate the foundation from the settings
     foundation <- makeFoundation settings
