@@ -18,6 +18,13 @@ MySQL support:
 - https://github.com/haskoin/haskoin
 - https://github.com/haskoin/haskoin-wallet
 
+You need Cabal command line to install the faucet. Install this package if is
+not installed yet:
+
+```sh
+sudo apt-get install cabal-install
+```
+
 If MySQL support not added already to Haskoin Wallet, install MySQL client
 development libraries.  On Debian/Ubuntu:
 
