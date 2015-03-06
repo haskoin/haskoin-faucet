@@ -65,11 +65,11 @@ renderHome = do
     ip  <- getUserIP
     timeM <- nextWithdrawTime
     addrRes <- getDonationAddress
-    balRes  <- getWalletBalance
-    let balance = case balRes of
-            BalanceConflict -> "Balance conflict" 
-            Balance b       -> show b
-        donation = addrToBase58 addrRes
+    -- balRes  <- getWalletBalance
+    -- let balance = case balRes of
+    --         BalanceConflict -> "Balance conflict" 
+    --         Balance b       -> show b
+    let donation = addrToBase58 addrRes
     defaultLayout $ do
         setTitle "Haskoin Faucet"
         $(widgetFile "homepage")
