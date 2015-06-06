@@ -65,10 +65,6 @@ renderHome = do
     ip  <- getUserIP
     timeM <- nextWithdrawTime
     addrRes <- getDonationAddress
-    -- balRes  <- getWalletBalance
-    -- let balance = case balRes of
-    --         BalanceConflict -> "Balance conflict" 
-    --         Balance b       -> show b
     let donation = addrToBase58 addrRes
     defaultLayout $ do
         setTitle "Haskoin Faucet"
@@ -98,13 +94,12 @@ withdraw addr = do
         account = appAccountName cfg
         minconf = appMinConf cfg
         fee     = appFee cfg
-
-    let action = CreateTx [(addr, limit)] fee minconf True
+        action = CreateTx [(addr, limit)] fee minconf True
     txRes <- sendZmq $ PostTxsR wallet account action
     case txRes of
         ResponseError err -> setMessage =<< withUrlRenderer
             $(hamletFile "templates/error-message.hamlet")
-        ResponseValid (TxHashStatusRes tid _) -> do
+        ResponseValid (TxHashConfidenceRes tid _) -> do
             setMessage =<< withUrlRenderer
                 $(hamletFile "templates/sent-message.hamlet")
             runDB $ do
@@ -119,22 +114,11 @@ getDonationAddress = do
     cfg <- appSettings <$> getYesod
     let wallet = appWalletName cfg
         account = appAccountName cfg
-    addrRes <- sendZmq $ GetAddressesR wallet account Nothing 0 False False True
+    addrRes <- sendZmq $ GetAddressesUnusedR wallet account AddressExternal
     case addrRes of
         ResponseError err -> invalidArgs [ err ]
         ResponseValid []  -> invalidArgs [ "Could not get a donation address" ]
-        ResponseValid (x:_) -> return $ laAddress $ baAddress x
-
-getWalletBalance :: Handler Balance
-getWalletBalance = do
-    cfg <- appSettings <$> getYesod
-    let wallet  = appWalletName cfg
-        account = appAccountName cfg
-        minconf = appMinConf cfg
-    balRes <- sendZmq $ GetBalanceR wallet account minconf
-    case balRes of
-        ResponseError err -> invalidArgs [ err ]
-        ResponseValid (BalanceRes bal _) -> return bal
+        ResponseValid (x:_) -> return $ jsonAddrAddress x
 
 getUserIP :: Handler Text
 getUserIP = do
