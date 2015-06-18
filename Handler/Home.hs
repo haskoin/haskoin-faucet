@@ -94,7 +94,7 @@ withdraw addr = do
         account = appAccountName cfg
         minconf = appMinConf cfg
         fee     = appFee cfg
-        action = CreateTx [(addr, limit)] fee minconf True
+        action = CreateTx [(addr, limit)] fee False minconf True
     txRes <- sendZmq $ PostTxsR wallet account action
     case txRes of
         ResponseError err -> setMessage =<< withUrlRenderer
