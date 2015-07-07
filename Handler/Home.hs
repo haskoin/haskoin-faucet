@@ -94,12 +94,12 @@ withdraw addr = do
         account = appAccountName cfg
         minconf = appMinConf cfg
         fee     = appFee cfg
-        action = CreateTx [(addr, limit)] fee minconf True
+        action = CreateTx [(addr, limit)] fee False minconf True
     txRes <- sendZmq $ PostTxsR wallet account action
     case txRes of
         ResponseError err -> setMessage =<< withUrlRenderer
             $(hamletFile "templates/error-message.hamlet")
-        ResponseValid (TxHashConfidenceRes tid _) -> do
+        ResponseValid (Just (TxHashConfidenceRes tid _)) -> do
             setMessage =<< withUrlRenderer
                 $(hamletFile "templates/sent-message.hamlet")
             runDB $ do
@@ -117,8 +117,8 @@ getDonationAddress = do
     addrRes <- sendZmq $ GetAddressesUnusedR wallet account AddressExternal
     case addrRes of
         ResponseError err -> invalidArgs [ err ]
-        ResponseValid []  -> invalidArgs [ "Could not get a donation address" ]
-        ResponseValid (x:_) -> return $ jsonAddrAddress x
+        ResponseValid (Just (x:_)) -> return $ jsonAddrAddress x
+        ResponseValid _ -> invalidArgs [ "Could not get a donation address" ]
 
 getUserIP :: Handler Text
 getUserIP = do

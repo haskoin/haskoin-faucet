@@ -1,0 +1,16 @@
+flags: {}
+packages:
+- '.'
+- location:
+    git: https://github.com/haskoin/haskoin.git
+    commit: a349130c3aa93d1a9d3ab9ee63ddbba3523d5053
+- location:
+    git: https://github.com/plaprade/haskoin-wallet.git
+    commit: 8ecacdf26d547739b2a97a0786be154af11785de
+extra-deps:
+- SafeSemaphore-0.10.1
+- daemons-0.2.1
+- leveldb-haskell-0.6.3
+- murmur3-1.0.0
+- pbkdf-1.1.1.1
+resolver: lts-2.15
