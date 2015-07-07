@@ -9,83 +9,57 @@ of the haskoin-wallet package.
 
 ## Installing
 
-### Dependencies
+Get dependencies:
 
-This package depends on haskoin and haskoin-wallet.  First, install them from
-their GitHub repositories.  It is recommended to install Haskoin Wallet with
-MySQL support:
+- [Stack](https://github.com/commercialhaskell/stack)
+- [MySQL](http://dev.mysql.com/)
+- [PCRE](http://pcre.org/)
+- [ØMQ](http://zeromq.org/)
+- [Git](http://git-scm.com/)
+- [LevelDB](https://github.com/google/leveldb)
+- [Snappy](https://code.google.com/p/snappy/)
+- [pkg-config](http://www.freedesktop.org/wiki/Software/pkg-config/)
+- [zlib](http://zlib.net/)
 
-- https://github.com/haskoin/haskoin
-- https://github.com/haskoin/haskoin-wallet
-
-You need Cabal command line to install the faucet. Install this package if is
-not installed yet:
-
-```sh
-sudo apt-get install cabal-install
-```
-
-If MySQL support not added already to Haskoin Wallet, install MySQL client
-development libraries.  On Debian/Ubuntu:
+Ubuntu:
 
 ```sh
-sudo apt-get install libmysqlclient-dev
+sudo apt-get install -y git libleveldb-dev \
+    libzmq3-dev libsnappy-dev pkg-config zlib1g-dev \
+    libmysqlclient-dev libpcre3-dev
 ```
 
-Install MySQL.  On Debian/Ubuntu:
-
-```sh
-sudo apt-get install mysql-server
-```
-
-Create database:
-
-```sh
-mysql -u root -p
-> create database haskoin_faucet
-```
-
-### Git
-
-Install from Git:
+Clone repository and install:
 
 ```sh
 git clone https://github.com/haskoin/haskoin-faucet.git
 cd haskoin-faucet
-cabal install
+stack install
 ```
 
 ## Running
 
-You need runnning instances of MySQL database, and Haskoin Wallet.  Run Haskoin
-Wallet with minimum-confirmations parameter set to zero.  You can set this
-either from server.yml or the MINCONF environment variable.
+Create database in MySQL server.
 
-To configure haskoin-faucet, either change configuration file in
-config/settings.yml, or set these environment variables before running
-haskoin-faucet:
+Start an instance of Haskoin Wallet:
 
-- HOST
-- PORT
-- APPROOT (ie. http://faucet.example.com)
-- IP\_FROM\_HEADER
-- WITHDRAW\_LIMIT (amount to withdraw per transaction)
-- RESET\_TIME (time to withdraw again)
-- HW\_SOCKET (ie. ipc:///home/haskoin/.hw/testnet/hw-spv)
-- WALLET (Haskoin wallet name where faucet account is)
-- ACCOUNT (Haskoin account to withdraw funds from)
-- MYSQL\_USER
-- MYSQL\_PASSWORD
-- MYSQL\_HOST
-- MYSQL\_PORT
-- MYSQL\_DATABASE
+```sh
+# Example for testnet
+~/.local/bin/hw start -t -d
+```
 
-If running Haskoin Faucet from a non-root user, you may want to setup a reverse
-proxy or port redirection.  That is not explained here.
+Copy `settings.yml` to a location of your choice, and edit it to match your
+setup. Alternatively use environment variables as shown in the same file.
+
+Copy the `static` directory from the source distribution into your faucet
+directory.
+
+Start the faucet from the faucet directory:
+
+```sh
+~/.local/bin/haskoin-faucet /location/of/settings.yml
+```
 
 ## Contributing
 
 Commits are done through GitHub pull requests.
-
-We do a lot of our technical discussions in the IRC channel #haskoin on
-chat.freenode.net.

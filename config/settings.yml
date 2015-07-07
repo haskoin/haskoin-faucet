@@ -1,9 +1,15 @@
 static-dir:     "_env:STATIC_DIR:static"
-# host:           "_env:HOST:*4" # any IPv4 host
-host:           "_env:HOST:127.0.0.1" # any IPv4 host
+host:           "_env:HOST:127.0.0.1" # * for any host
 port:           "_env:PORT:3000"
 approot:        "_env:APPROOT:http://localhost:3000"
 ip-from-header: "_env:IP_FROM_HEADER:false"
+
+# By default Haskoin Wallet uses $HOME/.hw/<network>/hw.sock
+wallet-socket:  "_env:HW_SOCKET:ipc://hw.sock"
+
+keyring-name:          "_env:KEYRING:main"
+account-name:          "_env:ACCOUNT:faucet"
+use-testnet:           "_env:HW_TESTNET:true"
 
 # Optional values with the following production defaults.
 # In development, they default to the inverse.
@@ -23,13 +29,9 @@ database:
   database: "_env:MYSQL_DATABASE:haskoin_faucet"
   poolsize: "_env:MYSQL_POOLSIZE:10"
 
-#analytics: UA-YOURCODE
+# analytics: UA-YOURCODE
 
 withdrawal-limit:      "_env:WITHDRAW_LIMIT:100000"
-withdrawal-reset-time: "_env:RESET_TIME:30"
+withdrawal-reset-time: "_env:RESET_TIME:0"
 minimum-confirmations: "_env:CONFIRMATIONS:0"
-transaction-fee:       "_env:FEE:10000"
-wallet-socket:         "_env:HW_SOCKET:ipc://hw-spv"
-wallet-name:           "_env:WALLET:faucet"
-account-name:          "_env:ACCOUNT:public"
-use-testnet:           "_env:HW_TESTNET:false"
+transaction-fee:       "_env:FEE:1000"

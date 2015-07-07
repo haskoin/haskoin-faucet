@@ -104,7 +104,7 @@ instance FromJSON AppSettings where
         appMinConf                <- o .: "minimum-confirmations"
         appFee                    <- o .: "transaction-fee"
         appWalletSocket           <- o .: "wallet-socket"
-        appWalletName             <- o .: "wallet-name"
+        appWalletName             <- o .: "keyring-name"
         appAccountName            <- o .: "account-name"
         appUseTestnet             <- o .: "use-testnet"
 
