@@ -10,5 +10,6 @@ tmp
 yesod-devel
 client_session_key.aes
 .cabal-sandbox
+.stack-work
 cabal.sandbox.config
 cabal.config

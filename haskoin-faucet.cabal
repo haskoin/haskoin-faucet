@@ -70,7 +70,7 @@ library
                  , aeson                         >= 0.6        && < 0.9
                  , conduit                       >= 1.0        && < 2.0
                  , monad-logger                  >= 0.3        && < 0.4
-                 , fast-logger                   >= 2.2        && < 2.3
+                 , fast-logger                   >= 2.2        && < 2.4
                  , wai-logger                    >= 2.2        && < 2.3
                  , wai                           >= 3.0        && < 3.1
                  , wai-extra                     >= 3.0        && < 3.1
