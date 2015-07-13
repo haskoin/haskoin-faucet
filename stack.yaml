@@ -1,5 +1,5 @@
 flags:
-    haskoin:
+    haskoin-wallet:
         mysql: true
 packages:
 - '.'
