@@ -1,4 +1,6 @@
-flags: {}
+flags:
+    haskoin:
+        mysql: true
 packages:
 - '.'
 - location:
