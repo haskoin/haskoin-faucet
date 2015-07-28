@@ -94,12 +94,13 @@ withdraw addr = do
         account = appAccountName cfg
         minconf = appMinConf cfg
         fee     = appFee cfg
-        action = CreateTx [(addr, limit)] fee False minconf True
+        action = CreateTx [(addr, limit)] fee minconf False True
     txRes <- sendZmq $ PostTxsR wallet account action
     case txRes of
         ResponseError err -> setMessage =<< withUrlRenderer
             $(hamletFile "templates/error-message.hamlet")
-        ResponseValid (Just (TxHashConfidenceRes tid _)) -> do
+        ResponseValid (Just tx) -> do
+            let tid = jsonTxHash tx
             setMessage =<< withUrlRenderer
                 $(hamletFile "templates/sent-message.hamlet")
             runDB $ do

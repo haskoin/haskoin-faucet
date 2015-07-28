@@ -4,11 +4,11 @@ flags:
 packages:
 - '.'
 - location:
-    git: https://github.com/plaprade/haskoin.git
-    commit: 22125f3bae4af661f28729b6e01291785db763db
+    git: https://github.com/haskoin/haskoin.git
+    commit: d3f6dd13258202575874abadb0abcba7fd7d8c98
 - location:
-    git: https://github.com/plaprade/haskoin-wallet.git
-    commit: 075dc53e5a583a446fddd2c22675cbc1682d7986
+    git: https://github.com/haskoin/haskoin-wallet.git
+    commit: 6fddc6c4e67dec39b44c21f1c278fa8f4a63256d
 extra-deps:
 - SafeSemaphore-0.10.1
 - daemons-0.2.1
