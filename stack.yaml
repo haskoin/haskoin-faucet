@@ -11,7 +11,7 @@ packages:
     commit: 0b23c412dd46b37b7f2afd5360c08708b1e62d43
 - location:
     git: https://github.com/haskoin/haskoin-wallet.git
-    commit: b9b2e9922ba89344be4ed43c9f97e631d18c8ae8
+    commit: 5cc4ffc1da95c5bb002d9c4e5ff81b5295a360b8
 extra-deps:
 - SafeSemaphore-0.10.1
 - daemons-0.2.1

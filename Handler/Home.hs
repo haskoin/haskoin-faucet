@@ -99,7 +99,7 @@ withdraw addr = do
     case txRes of
         ResponseError err -> setMessage =<< withUrlRenderer
             $(hamletFile "templates/error-message.hamlet")
-        ResponseValid (Just tx) -> do
+        ResponseValid (Just (JsonWithAccount _ _ tx)) -> do
             let tid = jsonTxHash tx
             setMessage =<< withUrlRenderer
                 $(hamletFile "templates/sent-message.hamlet")
@@ -118,7 +118,8 @@ getDonationAddress = do
     addrRes <- sendZmq $ GetAddressesUnusedR wallet account AddressExternal
     case addrRes of
         ResponseError err -> invalidArgs [ err ]
-        ResponseValid (Just (x:_)) -> return $ jsonAddrAddress x
+        ResponseValid (Just (JsonWithAccount _ _ (x:_))) -> 
+            return $ jsonAddrAddress x
         ResponseValid _ -> invalidArgs [ "Could not get a donation address" ]
 
 getUserIP :: Handler Text
