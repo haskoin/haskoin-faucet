@@ -44,7 +44,6 @@ postHomeR = do
         setMessage msg
         redirect HomeR
 
-    cfg <- appSettings <$> getYesod
     result <- runInputPostResult $ ireq textField "address"
     case result of
         FormSuccess addr -> do
@@ -61,8 +60,6 @@ postHomeR = do
 -- Display the home page
 renderHome :: Handler Html
 renderHome = do
-    limit <- (appLimit . appSettings) <$> getYesod
-    ip  <- getUserIP
     timeM <- nextWithdrawTime
     addrRes <- getDonationAddress
     let donation = addrToBase58 addrRes
@@ -109,6 +106,7 @@ withdraw addr = do
                 case resE of
                     Left (Entity uid _) -> replace uid $ User userIP now limit
                     Right _ -> return ()
+        _ -> error "Unexpected error"
 
 getDonationAddress :: Handler Address
 getDonationAddress = do
@@ -118,7 +116,7 @@ getDonationAddress = do
     addrRes <- sendZmq $ GetAddressesUnusedR wallet account AddressExternal
     case addrRes of
         ResponseError err -> invalidArgs [ err ]
-        ResponseValid (Just (JsonWithAccount _ _ (x:_))) -> 
+        ResponseValid (Just (JsonWithAccount _ _ (x:_))) ->
             return $ jsonAddrAddress x
         ResponseValid _ -> invalidArgs [ "Could not get a donation address" ]
 
@@ -129,6 +127,7 @@ getUserIP = do
         SockAddrInet _ ha -> pack $ show $ fromHostAddress ha
         SockAddrInet6 _ _ ha _ -> pack $ show $ fromHostAddress6 ha
         SockAddrUnix ha -> pack ha
+        _ -> error "Socket type not supported"
 
 sendZmq :: FromJSON a => WalletRequest -> Handler (WalletResponse a)
 sendZmq req = do

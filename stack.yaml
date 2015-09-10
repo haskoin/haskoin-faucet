@@ -5,18 +5,19 @@ packages:
 - '.'
 - location:
     git: https://github.com/haskoin/haskoin.git
-    commit: f15dc42720ddc6c928c15dd34fac01f5548fe872
+    commit: b71bcfa4701e129b69776e6951fe0bb7c8b26ea3
+    extra-dep: true
 - location:
     git: https://github.com/haskoin/haskoin-node.git
-    commit: a8f6a4972743a0c64de0831bd2df4e1f8a360097
+    commit: edc1dba4226b16c8e53d1a1e64e4f47ac5faff8d
+    extra-dep: true
 - location:
     git: https://github.com/haskoin/haskoin-wallet.git
-    commit: ac5ce13d77126cf167d91b042ece1aeb207261cb
+    commit: d973eb92070e0264f138e191bb8791a10e470b2d
+    extra-dep: true
 extra-deps:
-- SafeSemaphore-0.10.1
 - daemons-0.2.1
 - leveldb-haskell-0.6.3
 - murmur3-1.0.0
 - pbkdf-1.1.1.1
-- esqueleto-2.2.7
-resolver: lts-2.15
+resolver: lts-3.4

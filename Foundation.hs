@@ -2,7 +2,7 @@ module Foundation where
 
 import ClassyPrelude.Yesod
 import Database.Persist.Sql (ConnectionPool, runSqlPool)
-import Model
+import Model                ()
 import Settings
 import Settings.StaticFiles
 import Text.Hamlet          (hamletFile)

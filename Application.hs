@@ -11,14 +11,14 @@ import System.Log.FastLogger (defaultBufSize, newStdoutLoggerSet, toLogStr)
 
 import Control.Monad.Logger (liftLoc, runLoggingT)
 
-import Database.Persist.MySQL 
+import Database.Persist.MySQL
     ( createMySQLPool
     , myConnInfo
     , myPoolSize
     , runSqlPool
     )
 import Language.Haskell.TH.Syntax (qLocation)
-import Network.Wai.Handler.Warp 
+import Network.Wai.Handler.Warp
     ( Settings
     , defaultSettings
     , defaultShouldDisplayException
@@ -27,7 +27,7 @@ import Network.Wai.Handler.Warp
     , setOnException
     , setPort
     )
-import Network.Wai.Middleware.RequestLogger 
+import Network.Wai.Middleware.RequestLogger
     (Destination (Logger)
     , IPAddrSource (..)
     , OutputFormat (..)
@@ -36,7 +36,6 @@ import Network.Wai.Middleware.RequestLogger
     , outputFormat
     )
 
-import Network.Haskoin.Wallet (runSPVServer)
 import Network.Haskoin.Constants (switchToTestnet3)
 
 -- Import all relevant handler modules here.
