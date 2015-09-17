@@ -11,15 +11,10 @@ import qualified System.ZMQ4.Monadic as Z
     , connect
     )
 
-import Data.Time.Clock (addUTCTime)
-import Data.IP (fromHostAddress, fromHostAddress6)
 import Data.Aeson (encode, eitherDecode)
 import qualified Data.Text as T (strip, pack, unpack)
 
 import Text.Hamlet (hamletFile)
-
-import Network.Wai (Request(remoteHost))
-import Network.Socket (SockAddr(..))
 
 import Network.Haskoin.Wallet
 import Network.Haskoin.Crypto
@@ -37,13 +32,6 @@ getHomeR = renderHome
 
 postHomeR :: Handler Html
 postHomeR = do
-    timeM <- nextWithdrawTime
-    when (isJust timeM) $ do
-        msg <- withUrlRenderer
-            $(hamletFile "templates/not-authorized-message.hamlet")
-        setMessage msg
-        redirect HomeR
-
     result <- runInputPostResult $ ireq textField "address"
     case result of
         FormSuccess addr -> do
@@ -54,37 +42,21 @@ postHomeR = do
                     setMessage msg
                 Just x ->
                     withdraw x
-            redirect HomeR
+            renderHome
         _ -> renderHome
 
 -- Display the home page
 renderHome :: Handler Html
 renderHome = do
-    timeM <- nextWithdrawTime
     addrRes <- getDonationAddress
     let donation = addrToBase58 addrRes
     defaultLayout $ do
         setTitle "Haskoin Faucet"
         $(widgetFile "homepage")
 
--- Returns the time at which a user can withdraw again. Returns Nothing
--- if the user can withdraw now.
-nextWithdrawTime :: Handler (Maybe UTCTime)
-nextWithdrawTime = do
-    userIp <- getUserIP
-    userM  <- runDB $ getBy $ UniqueIp userIp
-    reset <- (appReset . appSettings) <$> getYesod
-    case userM of
-        Just (Entity _ user) -> do
-            now <- liftIO getCurrentTime
-            let allowedTime = addUTCTime reset $ userWithdrawTime user
-            return $ if now > allowedTime then Nothing else Just allowedTime
-        Nothing -> return Nothing
-
 -- Performs a withdrawal to the provided Address
 withdraw :: Address -> Handler ()
 withdraw addr = do
-    userIP <- getUserIP
     cfg <- appSettings <$> getYesod
     let limit   = appLimit cfg
         wallet  = appWalletName cfg
@@ -100,13 +72,10 @@ withdraw addr = do
             let tid = jsonTxHash tx
             setMessage =<< withUrlRenderer
                 $(hamletFile "templates/sent-message.hamlet")
-            runDB $ do
-                now  <- liftIO getCurrentTime
-                resE <- insertBy $ User userIP now limit
-                case resE of
-                    Left (Entity uid _) -> replace uid $ User userIP now limit
-                    Right _ -> return ()
-        _ -> error "Unexpected error"
+        _ -> do
+            let err = "Unexpected error" :: Text
+            setMessage =<< withUrlRenderer
+                $(hamletFile "templates/error-message.hamlet")
 
 getDonationAddress :: Handler Address
 getDonationAddress = do
@@ -119,15 +88,6 @@ getDonationAddress = do
         ResponseValid (Just (JsonWithAccount _ _ (x:_))) ->
             return $ jsonAddrAddress x
         ResponseValid _ -> invalidArgs [ "Could not get a donation address" ]
-
-getUserIP :: Handler Text
-getUserIP = do
-    sock <- remoteHost <$> waiRequest
-    return $ case sock of
-        SockAddrInet _ ha -> pack $ show $ fromHostAddress ha
-        SockAddrInet6 _ _ ha _ -> pack $ show $ fromHostAddress6 ha
-        SockAddrUnix ha -> pack ha
-        _ -> error "Socket type not supported"
 
 sendZmq :: FromJSON a => WalletRequest -> Handler (WalletResponse a)
 sendZmq req = do

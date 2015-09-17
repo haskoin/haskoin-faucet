@@ -1,8 +1,6 @@
 module Foundation where
 
 import ClassyPrelude.Yesod
-import Database.Persist.Sql (ConnectionPool, runSqlPool)
-import Model                ()
 import Settings
 import Settings.StaticFiles
 import Text.Hamlet          (hamletFile)
@@ -19,7 +17,6 @@ import Network.Haskoin.Constants (networkName)
 data App = App
     { appSettings    :: AppSettings
     , appStatic      :: Static -- ^ Settings for static file serving.
-    , appConnPool    :: ConnectionPool -- ^ Database connection pool.
     , appHttpManager :: Manager
     , appLogger      :: Logger
     }
@@ -46,11 +43,8 @@ instance Yesod App where
     -- see: https://github.com/yesodweb/yesod/wiki/Overriding-approot
     approot = ApprootMaster $ appRoot . appSettings
 
-    -- Store session data on the client in encrypted cookies,
-    -- default session idle timeout is 120 minutes
-    makeSessionBackend _ = fmap Just $ defaultClientSessionBackend
-        120    -- timeout in minutes
-        "config/client_session_key.aes"
+    -- Disable sessions
+    makeSessionBackend _ = return Nothing
 
     defaultLayout widget = do
         master <- getYesod
@@ -95,15 +89,6 @@ instance Yesod App where
             || level == LevelError
 
     makeLogger = return . appLogger
-
--- How to run database actions.
-instance YesodPersist App where
-    type YesodPersistBackend App = SqlBackend
-    runDB action = do
-        master <- getYesod
-        runSqlPool action $ appConnPool master
-instance YesodPersistRunner App where
-    getDBRunner = defaultGetDBRunner appConnPool
 
 -- This instance is required to use forms. You can modify renderMessage to
 -- achieve customized and internationalized form validation messages.

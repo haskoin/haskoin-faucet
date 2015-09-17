@@ -15,7 +15,6 @@ library
     exposed-modules: Application
                      Foundation
                      Import
-                     Model
                      Settings
                      Settings.StaticFiles
                      Handler.Common
@@ -55,9 +54,6 @@ library
                  , classy-prelude-yesod          >= 0.10.2
                  , bytestring                    >= 0.9        && < 0.11
                  , text                          >= 0.11       && < 2.0
-                 , persistent                    >= 2.0        && < 2.3
-                 , persistent-mysql              >= 2.1.2      && < 2.3
-                 , persistent-template           >= 2.0        && < 2.2
                  , template-haskell
                  , shakespeare                   >= 2.0        && < 2.1
                  , hjsmin                        >= 0.1        && < 0.2
@@ -124,11 +120,10 @@ test-suite test
                  , yesod-test >= 1.4.2 && < 1.5
                  , yesod-core
                  , yesod
-                 , persistent
-                 , persistent-mysql
                  , resourcet
                  , monad-logger
                  , transformers
                  , hspec
                  , classy-prelude
                  , classy-prelude-yesod
+                 , process

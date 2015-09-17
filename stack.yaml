@@ -1,6 +1,4 @@
-flags:
-    haskoin-wallet:
-        mysql: true
+flags: {}
 packages:
 - '.'
 - location:

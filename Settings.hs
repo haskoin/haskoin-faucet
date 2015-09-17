@@ -7,7 +7,7 @@ module Settings where
 
 import ClassyPrelude.Yesod
 import Control.Exception (throw)
-import Data.Aeson 
+import Data.Aeson
     ( Result (..)
     , fromJSON
     , withObject
@@ -15,12 +15,10 @@ import Data.Aeson
     )
 import Data.FileEmbed (embedFile)
 import Data.Yaml (decodeEither')
-import Data.Time.Clock (NominalDiffTime)
-import Database.Persist.MySQL (MySQLConf)
 import Language.Haskell.TH.Syntax (Exp, Name, Q)
 import Network.Wai.Handler.Warp (HostPreference)
 import Yesod.Default.Config2 (applyEnvValue, configSettingsYml)
-import Yesod.Default.Util 
+import Yesod.Default.Util
     ( WidgetFileSettings
     , widgetFileNoReload
     , widgetFileReload
@@ -32,8 +30,6 @@ import Yesod.Default.Util
 data AppSettings = AppSettings
     { appStaticDir              :: String
     -- ^ Directory from which to serve static files.
-    , appDatabaseConf           :: MySQLConf
-    -- ^ Configuration settings for accessing the database.
     , appRoot                   :: Text
     -- ^ Base for all generated URLs.
     , appHost                   :: HostPreference
@@ -61,10 +57,8 @@ data AppSettings = AppSettings
 
     , appLimit                  :: Word64
     -- ^ Faucet withdrawal limit
-    , appReset                  :: NominalDiffTime
-    -- ^ Time in second between withdrawals
     , appMinConf                :: Word32
-    -- ^ Minimum number of confirmations 
+    -- ^ Minimum number of confirmations
     , appFee                    :: Word64
     -- ^ Fee to pay per 1000 bytes
     , appWalletSocket           :: Text
@@ -85,7 +79,6 @@ instance FromJSON AppSettings where
                 False
 #endif
         appStaticDir              <- o .: "static-dir"
-        appDatabaseConf           <- o .: "database"
         appRoot                   <- o .: "approot"
         appHost                   <- fromString <$> o .: "host"
         appPort                   <- o .: "port"
@@ -100,7 +93,6 @@ instance FromJSON AppSettings where
         appAnalytics              <- o .:? "analytics"
 
         appLimit                  <- o .: "withdrawal-limit"
-        appReset                  <- fromInteger <$> (o .: "withdrawal-reset-time")
         appMinConf                <- o .: "minimum-confirmations"
         appFee                    <- o .: "transaction-fee"
         appWalletSocket           <- o .: "wallet-socket"

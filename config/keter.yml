@@ -21,7 +21,7 @@ stanzas:
       # You can specify one or more hostnames for your application to respond
       # to. The primary hostname will be used for generating your application
       # root.
-      - www.haskoin-faucet.com
+      - faucet.haskoin.com
 
     # Enable to force Keter to redirect to https
     # Can be added to any stanza
@@ -30,19 +30,19 @@ stanzas:
   # Static files.
   - type: static-files
     hosts:
-      - static.haskoin-faucet.com
+      - static.faucet.haskoin.com
     root: ../static
 
     # Uncomment to turn on directory listings.
     # directory-listing: true
 
-  # Redirect plain domain name to www.
+  # Redirect www domain name to plain.
   - type: redirect
 
     hosts:
-      - haskoin-faucet.com
+      - www.faucet.haskoin.com
     actions:
-      - host: www.haskoin-faucet.com
+      - host: faucet.haskoin.com
         # secure: false
         # port: 80
 

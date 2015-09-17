@@ -9,14 +9,8 @@ module Application
 import Import
 import System.Log.FastLogger (defaultBufSize, newStdoutLoggerSet, toLogStr)
 
-import Control.Monad.Logger (liftLoc, runLoggingT)
+import Control.Monad.Logger (liftLoc)
 
-import Database.Persist.MySQL
-    ( createMySQLPool
-    , myConnInfo
-    , myPoolSize
-    , runSqlPool
-    )
 import Language.Haskell.TH.Syntax (qLocation)
 import Network.Wai.Handler.Warp
     ( Settings
@@ -62,25 +56,11 @@ makeFoundation appSettings = do
         (if appMutableStatic appSettings then staticDevel else static)
         (appStaticDir appSettings)
 
-    -- We need a log function to create a connection pool. We need a connection
-    -- pool to create our foundation. And we need our foundation to get a
-    -- logging function. To get out of this loop, we initially create a
-    -- temporary foundation without a real connection pool, get a log function
-    -- from there, and then create the real foundation.
-    let mkFoundation appConnPool = App {..}
-        tempFoundation = mkFoundation $ error "connPool forced in tempFoundation"
-        logFunc = messageLoggerSource tempFoundation appLogger
-
-    -- Create the database connection pool
-    pool <- flip runLoggingT logFunc $ createMySQLPool
-        (myConnInfo $ appDatabaseConf appSettings)
-        (myPoolSize $ appDatabaseConf appSettings)
-
-    -- Perform database migration using our application's logging settings.
-    runLoggingT (runSqlPool (runMigration migrateAll) pool) logFunc
+    -- Use testnet
+    when (appUseTestnet appSettings) switchToTestnet3
 
     -- Return the foundation
-    return $ mkFoundation pool
+    return $ App {..}
 
 -- | Convert our foundation to a WAI Application by calling @toWaiAppPlain@ and
 -- applyng some additional middlewares.
@@ -139,9 +119,6 @@ appMain = do
         [configSettingsYmlValue]
         -- allow environment variables to override
         useEnv
-
-    -- Use testnet
-    when (appUseTestnet settings) switchToTestnet3
 
     -- Generate the foundation from the settings
     foundation <- makeFoundation settings

@@ -1,0 +1,2 @@
+wallet-socket:  "_env:HW_SOCKET:ipc://testnet/hw.sock"
+account-name:   "_env:ACCOUNT:test"
