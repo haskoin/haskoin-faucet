@@ -11,7 +11,7 @@ packages:
     extra-dep: true
 - location:
     git: https://github.com/haskoin/haskoin-wallet.git
-    commit: d973eb92070e0264f138e191bb8791a10e470b2d
+    commit: cf62ae7e6bd5f428af85fd5294f2c8228131b624
     extra-dep: true
 extra-deps:
 - daemons-0.2.1
