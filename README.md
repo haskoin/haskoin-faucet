@@ -26,12 +26,12 @@ sudo apt-get install -y git libleveldb-dev libzmq3-dev \
     pkg-config zlib1g-dev libpcre3-dev
 ```
 
-Clone repository and install:
+Clone repository and build:
 
 ```sh
 git clone https://github.com/haskoin/haskoin-faucet.git
 cd haskoin-faucet
-stack install
+stack build
 ```
 
 ## Running
@@ -42,26 +42,26 @@ repository was cloned.
 Start an instance of Haskoin Wallet in the background:
 
 ```sh
-~/.local/bin/hw -t -d start
+stack exec hw -- -w .hw -t -d start
 ```
 
 Create a keyring:
 
 ```sh
-~/.local/bin/hw -t newkeyring
+stack exec hw -- -w .hw -t newkeyring
 ```
 
 Create a `faucet` account:
 
 ```sh
-~/.local/bin/hw -t newacc faucet
+stack exec hw -- -w .hw -t newacc faucet
 ```
 
 Start the faucet:
 
 ```sh
-HW_SOCKET="ipc://$HOME/.hw/testnet/hw.sock" \
-    ~/.local/bin/haskoin-faucet config/settings.yml
+HW_SOCKET="ipc://.hw/testnet/hw.sock" \
+    stack exec haskoin-faucet -- config/settings.yml
 ```
 
 The faucet will be accessible at [this URL](http://localhost:54705).
