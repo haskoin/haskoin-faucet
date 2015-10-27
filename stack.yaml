@@ -1,21 +1,15 @@
 flags: {}
 packages:
 - '.'
+- location: haskoin/haskoin-core
+  extra-dep: true
+- location: haskoin/haskoin-node
+  extra-dep: true
+- location: haskoin/haskoin-wallet
+  extra-dep: true
 - location:
     git: https://github.com/haskoin/secp256k1.git
     commit: 5ee603061b3c1eaf2943e8d2c08e6effe85f38e7
-  extra-dep: true
-- location:
-    git: https://github.com/haskoin/haskoin.git
-    commit: be9c45b9398044fd1aef6d80f055d4a1cc4cc4b7
-  extra-dep: true
-- location:
-    git: https://github.com/haskoin/haskoin-node.git
-    commit: 799ec4b0b1f3a715c5a441d8a42fbb9f1a78fe78
-  extra-dep: true
-- location:
-    git: https://github.com/haskoin/haskoin-wallet.git
-    commit: 5c36514f0261bd8342710b0e4c70e8f4332145fb
   extra-dep: true
 extra-deps:
 - daemons-0.2.1

@@ -12,14 +12,15 @@ import qualified System.ZMQ4.Monadic as Z
     )
 
 import Data.Aeson (encode, eitherDecode)
-import qualified Data.Text as T (strip, pack, unpack)
-import qualified Data.ByteString.Lazy as BL (toStrict, fromStrict)
+import qualified Data.ByteString.Lazy as BL (fromStrict, toStrict)
+import Data.String.Conversions (cs)
+import qualified Data.Text as T (pack, unpack)
 
 import Text.Hamlet (hamletFile)
 
+import Network.Haskoin.Transaction
 import Network.Haskoin.Wallet
 import Network.Haskoin.Crypto
-import Network.Haskoin.Transaction
 
 -- This is a handler function for the GET request method on the HomeR
 -- resource pattern. All of your resource patterns are defined in
@@ -36,7 +37,7 @@ postHomeR = do
     result <- runInputPostResult $ ireq textField "address"
     case result of
         FormSuccess addr -> do
-            case base58ToAddr $ encodeUtf8 $ T.strip addr of
+            case base58ToAddr $ cs addr of
                 Nothing -> do
                     msg <- withUrlRenderer
                         $(hamletFile "templates/invalid-address-message.hamlet")
@@ -50,7 +51,7 @@ postHomeR = do
 renderHome :: Handler Html
 renderHome = do
     addrRes <- getDonationAddress
-    let donation = addrToBase58 addrRes
+    let donation = cs $ addrToBase58 addrRes :: Text
     defaultLayout $ do
         setTitle "Haskoin Faucet"
         $(widgetFile "homepage")
@@ -70,7 +71,7 @@ withdraw addr = do
         ResponseError err -> setMessage =<< withUrlRenderer
             $(hamletFile "templates/error-message.hamlet")
         ResponseValid (Just (JsonWithAccount _ _ tx)) -> do
-            let tid = jsonTxHash tx
+            let tid = cs . txHashToHex $ jsonTxHash tx :: Text
             setMessage =<< withUrlRenderer
                 $(hamletFile "templates/sent-message.hamlet")
         _ -> do
