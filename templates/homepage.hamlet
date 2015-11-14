@@ -1,7 +1,7 @@
 <div .jumbotron>
     <p .truncate>
         <strong>Donations:
-        <span>#{donation}
+        <span>#{decodeUtf8 donation}
     <form method=post action=@{HomeR}>
         <div .input-group .input-group-lg>
             <span .input-group-btn #bitcoin-symbol>

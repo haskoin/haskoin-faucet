@@ -13,12 +13,13 @@ import qualified System.ZMQ4.Monadic as Z
 
 import Data.Aeson (encode, eitherDecode)
 import qualified Data.Text as T (strip, pack, unpack)
+import qualified Data.ByteString.Lazy as BL (toStrict, fromStrict)
 
 import Text.Hamlet (hamletFile)
 
 import Network.Haskoin.Wallet
 import Network.Haskoin.Crypto
-import Network.Haskoin.Util
+import Network.Haskoin.Transaction
 
 -- This is a handler function for the GET request method on the HomeR
 -- resource pattern. All of your resource patterns are defined in
@@ -35,7 +36,7 @@ postHomeR = do
     result <- runInputPostResult $ ireq textField "address"
     case result of
         FormSuccess addr -> do
-            case base58ToAddr $ T.unpack $ T.strip addr of
+            case base58ToAddr $ encodeUtf8 $ T.strip addr of
                 Nothing -> do
                     msg <- withUrlRenderer
                         $(hamletFile "templates/invalid-address-message.hamlet")
@@ -96,8 +97,8 @@ sendZmq req = do
     resE <- liftIO $ Z.runZMQ $ do
         sock <- Z.socket Z.Req
         Z.connect sock sockName
-        Z.send sock [] (toStrictBS $ encode req)
-        eitherDecode . toLazyBS <$> Z.receive sock
+        Z.send sock [] (BL.toStrict $ encode req)
+        eitherDecode . BL.fromStrict <$> Z.receive sock
     return $ case resE of
         Right r  -> r
         Left err -> ResponseError $ T.pack err
