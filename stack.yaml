@@ -7,15 +7,15 @@ packages:
   extra-dep: true
 - location:
     git: https://github.com/haskoin/haskoin.git
-    commit: 142189161ea51a4b14369179d5e6d334ad3f8206
+    commit: be9c45b9398044fd1aef6d80f055d4a1cc4cc4b7
   extra-dep: true
 - location:
-    git: https://github.com/plaprade/haskoin-node.git
-    commit: 0a4595c470e24fceb23749b58845d83054e8c764
+    git: https://github.com/haskoin/haskoin-node.git
+    commit: 799ec4b0b1f3a715c5a441d8a42fbb9f1a78fe78
   extra-dep: true
 - location:
-    git: https://github.com/plaprade/haskoin-wallet.git
-    commit: 864eee6395de566812c0a4c47a0a9a2237665f28
+    git: https://github.com/haskoin/haskoin-wallet.git
+    commit: 5c36514f0261bd8342710b0e4c70e8f4332145fb
   extra-dep: true
 extra-deps:
 - daemons-0.2.1
