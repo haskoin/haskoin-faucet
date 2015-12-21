@@ -7,7 +7,7 @@ packages:
   extra-dep: true
 - location:
     git: https://github.com/haskoin/haskoin.git
-    commit: 09e4218e981df163a2002ed6deccbcab47802d29
+    commit: f1c96c1e2849d449ed3b0af3268095a703bf73aa
   subdirs:
     - haskoin-core
     - haskoin-node
