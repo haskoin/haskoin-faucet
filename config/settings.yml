@@ -7,7 +7,6 @@ ip-from-header: "_env:IP_FROM_HEADER:false"
 # By default Haskoin Wallet uses $HOME/.hw/<network>/hw.sock
 wallet-socket:  "_env:HW_SOCKET:ipc://hw.sock"
 
-keyring-name:          "_env:KEYRING:main"
 account-name:          "_env:ACCOUNT:faucet"
 use-testnet:           "_env:HW_TESTNET:true"
 

@@ -63,8 +63,6 @@ data AppSettings = AppSettings
     -- ^ Fee to pay per 1000 bytes
     , appWalletSocket           :: Text
     -- ^ URL of the hw wallet
-    , appWalletName             :: Text
-    -- ^ Wallet name in hw
     , appAccountName            :: Text
     -- ^ Account name in hw
     , appUseTestnet             :: Bool
@@ -96,7 +94,6 @@ instance FromJSON AppSettings where
         appMinConf                <- o .: "minimum-confirmations"
         appFee                    <- o .: "transaction-fee"
         appWalletSocket           <- o .: "wallet-socket"
-        appWalletName             <- o .: "keyring-name"
         appAccountName            <- o .: "account-name"
         appUseTestnet             <- o .: "use-testnet"
 

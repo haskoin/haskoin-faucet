@@ -60,16 +60,15 @@ withdraw :: Address -> Handler ()
 withdraw addr = do
     cfg <- appSettings <$> getYesod
     let limit   = appLimit cfg
-        wallet  = appWalletName cfg
         account = appAccountName cfg
         minconf = appMinConf cfg
         fee     = appFee cfg
         action = CreateTx [(addr, limit)] fee minconf False True
-    txRes <- sendZmq $ PostTxsR wallet account action
+    txRes <- sendZmq $ PostTxsR account Nothing action
     case txRes of
         ResponseError err -> setMessage =<< withUrlRenderer
             $(hamletFile "templates/error-message.hamlet")
-        ResponseValid (Just (JsonWithAccount _ _ tx)) -> do
+        ResponseValid (Just tx) -> do
             let tid = jsonTxHash tx
             setMessage =<< withUrlRenderer
                 $(hamletFile "templates/sent-message.hamlet")
@@ -81,12 +80,11 @@ withdraw addr = do
 getDonationAddress :: Handler Address
 getDonationAddress = do
     cfg <- appSettings <$> getYesod
-    let wallet = appWalletName cfg
-        account = appAccountName cfg
-    addrRes <- sendZmq $ GetAddressesUnusedR wallet account AddressExternal
+    let account = appAccountName cfg
+    addrRes <- sendZmq $ GetAddressesUnusedR account AddressExternal
     case addrRes of
         ResponseError err -> invalidArgs [ err ]
-        ResponseValid (Just (JsonWithAccount _ _ (x:_))) ->
+        ResponseValid (Just (x:_)) ->
             return $ jsonAddrAddress x
         ResponseValid _ -> invalidArgs [ "Could not get a donation address" ]
 
