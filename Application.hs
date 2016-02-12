@@ -3,6 +3,7 @@ module Application
 ( getApplicationDev
 , appMain
 , develMain
+, makeLogWare
 , makeFoundation
 ) where
 
@@ -12,6 +13,7 @@ import System.Log.FastLogger (defaultBufSize, newStdoutLoggerSet, toLogStr)
 import Control.Monad.Logger (liftLoc)
 
 import Language.Haskell.TH.Syntax (qLocation)
+import Network.Wai (Middleware)
 import Network.Wai.Handler.Warp
     ( Settings
     , defaultSettings
@@ -62,21 +64,23 @@ makeFoundation appSettings = do
     -- Return the foundation
     return $ App {..}
 
+makeLogWare :: App -> IO Middleware
+makeLogWare foundation = mkRequestLogger def
+    { outputFormat =
+        if appDetailedRequestLogging $ appSettings foundation
+            then Detailed True
+            else Apache
+                    (if appIpFromHeader $ appSettings foundation
+                        then FromFallback
+                        else FromSocket)
+    , destination = Logger $ loggerSet $ appLogger foundation
+    }
+
 -- | Convert our foundation to a WAI Application by calling @toWaiAppPlain@ and
 -- applyng some additional middlewares.
 makeApplication :: App -> IO Application
 makeApplication foundation = do
-    logWare <- mkRequestLogger def
-        { outputFormat =
-            if appDetailedRequestLogging $ appSettings foundation
-                then Detailed True
-                else Apache
-                        (if appIpFromHeader $ appSettings foundation
-                            then FromFallback
-                            else FromSocket)
-        , destination = Logger $ loggerSet $ appLogger foundation
-        }
-
+    logWare <- makeLogWare foundation
     -- Create the WAI application and apply middlewares
     appPlain <- toWaiAppPlain foundation
     return $ logWare $ defaultMiddlewaresNoLogging appPlain
