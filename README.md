@@ -23,13 +23,13 @@ Ubuntu:
 
 ```sh
 sudo apt-get install -y git libleveldb-dev libzmq3-dev \
-    pkg-config zlib1g-dev libpcre3-dev
+    pkg-config zlib1g-dev libpcre3-dev libncurses5-dev
 ```
 
 Clone repository and build:
 
 ```sh
-git clone https://github.com/haskoin/haskoin-faucet.git
+git clone --recursive https://github.com/haskoin/haskoin-faucet.git
 cd haskoin-faucet
 stack build
 ```
@@ -43,12 +43,6 @@ Start an instance of Haskoin Wallet in the background:
 
 ```sh
 stack exec hw -- -w .hw -t -d start
-```
-
-Create a keyring:
-
-```sh
-stack exec hw -- -w .hw -t newkeyring
 ```
 
 Create a `faucet` account:
