@@ -6,12 +6,11 @@ packages:
     - haskoin-core
     - haskoin-node
     - haskoin-wallet
-    - secp256k1-haskell
   extra-dep: true
 extra-deps:
 - concurrent-extra-0.7.0.10
 - daemons-0.2.1
 - murmur3-1.0.1
 - pbkdf-1.1.1.1
-- cereal-0.5.1.0
-resolver: lts-4.1
+- secp256k1-0.4.4
+resolver: lts-5.2
