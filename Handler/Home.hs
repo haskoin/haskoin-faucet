@@ -81,10 +81,11 @@ getDonationAddress :: Handler Address
 getDonationAddress = do
     cfg <- appSettings <$> getYesod
     let account = appAccountName cfg
-    addrRes <- sendZmq $ GetAddressesUnusedR account AddressExternal
+        lq = ListRequest{ listLimit = 1, listOffset = 0, listReverse = False }
+    addrRes <- sendZmq $ GetAddressesUnusedR account AddressExternal lq
     case addrRes of
         ResponseError err -> invalidArgs [ err ]
-        ResponseValid (Just (x:_)) ->
+        ResponseValid (Just (ListResult (x:_) _)) ->
             return $ jsonAddrAddress x
         ResponseValid _ -> invalidArgs [ "Could not get a donation address" ]
 
