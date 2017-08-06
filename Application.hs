@@ -32,7 +32,7 @@ import Network.Wai.Middleware.RequestLogger
     , outputFormat
     )
 
-import Network.Haskoin.Constants (switchToTestnet3)
+import Network.Haskoin.Constants (switchToTestnet5)
 
 -- Import all relevant handler modules here.
 -- Don't forget to add new modules to your cabal file!
@@ -59,7 +59,7 @@ makeFoundation appSettings = do
         (appStaticDir appSettings)
 
     -- Use testnet
-    when (appUseTestnet appSettings) switchToTestnet3
+    when (appUseTestnet appSettings) switchToTestnet5
 
     -- Return the foundation
     return $ App {..}
@@ -103,7 +103,7 @@ warpSettings foundation =
 -- | For yesod devel, return the Warp settings and WAI Application.
 getApplicationDev :: IO (Settings, Application)
 getApplicationDev = do
-    settings <- loadAppSettings [configSettingsYml] [] useEnv
+    settings <- loadYamlSettings [configSettingsYml] [] useEnv
     foundation <- makeFoundation settings
     app <- makeApplication foundation
     wsettings <- getDevSettings $ warpSettings foundation
@@ -117,7 +117,7 @@ develMain = develMainHelper getApplicationDev
 appMain :: IO ()
 appMain = do
     -- Get the settings from all relevant sources
-    settings <- loadAppSettingsArgs
+    settings <- loadYamlSettingsArgs
         -- fall back to compile-time values, set to [] to require values at
         -- runtime
         [configSettingsYmlValue]

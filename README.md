@@ -54,7 +54,7 @@ stack exec hw -- -w .hw -t newacc faucet
 Start the faucet:
 
 ```sh
-HW_SOCKET="ipc://.hw/testnet/hw.sock" \
+HW_SOCKET="ipc://.hw/testnet5/hw.sock" \
     stack exec haskoin-faucet -- config/settings.yml
 ```
 
