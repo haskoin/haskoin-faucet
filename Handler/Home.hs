@@ -63,8 +63,8 @@ withdraw addr = do
         account = appAccountName cfg
         minconf = appMinConf cfg
         fee     = appFee cfg
-        action = CreateTx [(addr, limit)] fee minconf False True
-    txRes <- sendZmq $ PostTxsR account Nothing action
+        action = CreateTx [(addr, limit)] fee minconf False True Nothing
+    txRes <- sendZmq $ CreateTxReq account action
     case txRes of
         ResponseError err -> setMessage =<< withUrlRenderer
             $(hamletFile "templates/error-message.hamlet")
@@ -82,7 +82,7 @@ getDonationAddress = do
     cfg <- appSettings <$> getYesod
     let account = appAccountName cfg
         lq = ListRequest{ listLimit = 1, listOffset = 0, listReverse = False }
-    addrRes <- sendZmq $ GetAddressesUnusedR account AddressExternal lq
+    addrRes <- sendZmq $ UnusedAddrsReq account AddressExternal lq
     case addrRes of
         ResponseError err -> invalidArgs [ err ]
         ResponseValid (Just (ListResult (x:_) _)) ->
